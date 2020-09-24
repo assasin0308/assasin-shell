@@ -19,15 +19,8 @@ echo "Redis 安装完毕" &&
 echo "------------------------------------------------------------------------------------------------------------------------------------------------------------------" 
 
 
-# php版本
-# 1  ----> 5.3 
-# 2  ----> 5.4 
-# 3  ----> 5.5 
-# 4  ----> 5.6
-# 5  ----> 7.0 
-# 6  ----> 7.1 
-# 7  ----> 7.2
-# 8  ----> 7.3 
+echo "PHP版本选择对照" && 
+echo " 1  ----> 5.3; 2  ----> 5.4; 3  ----> 5.5; 4  ----> 5.6; 5  ----> 7.0; 6  ----> 7.1; 7  ----> 7.2; 8  ----> 7.3 " && 
 echo "安装PHP-7.2" &&
 /usr/local/oneinstack/install.sh --php_option 7 --phpcache_option 1 --php_extensions zendguardloader,ioncube,sourceguardian,imagick,gmagick,yaf,fileinfo,imap,ldap,phalcon,redis,memcached,memcache,mongodb,swoole,xdebug,curl,calendar,bcmath,bz2,Core,ctype,date,dom,ereg,exif,filter,ftp,gettext,hash,iconv,igbinaryinotify,json,libxml,mbstring,mhash,mysql,mysqli,mysqlnd,openssl,pcntl,pcre,PDO,pdo_mysql,pdo_sqlite,Phar,posix,readline,Reflection,session,shmop,SimpleXML,sockets,SPL,sqlite3,standard,sysvmsg,sysvsem,sysvshmswoole,tokenizer,wddx,xml,xmlreader,xmlwriter,xslyaf,zip,zlib
 echo "PHP-7.2安装完毕" && /usr/local/php/bin/php -m &&  
