@@ -74,7 +74,7 @@ echo "--------------------------------------------------------------------------
 
 
 
-echo "修改Python-pip为阿里云源" && 
+echo "修改Python-pip为阿里云源" && mkdir ~/.pip && touch ~/.pip/pip.conf && 
 cat <<EOF > ~/.pip/pip.conf
 [global]
 index-url = https://mirrors.aliyun.com/pypi/simple/
@@ -116,8 +116,9 @@ echo "同步完毕" && crontab -l  && date &&
 echo "------------------------------------------------------------------------------------------------------------------------------------------------------------------" && 
 
 
-echo "安装Nodejs" && cd /usr/local/ && 
+echo "安装Nodejs" && cd /usr/local/  && 
 wget https://nodejs.org/download/release/v8.14.1/node-v8.14.1-linux-arm64.tar.gz && node-v8.14.1-linux-arm64.tar.gz && 
+rm -f /usr/bin/npm && rm -f /usr/bin/npm && 
 ln -s /usr/local/node-v8.14.1-linux-arm64/bin/node /usr/bin/node &&
 ln -s /usr/local/node-v8.14.1-linux-arm64/bin/npm /usr/bin/npm && 
 /usr/local/node-v8.14.1-linux-arm64/bin/npm config set registry https://registry.npm.taobao.org  && 
