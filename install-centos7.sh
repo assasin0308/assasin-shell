@@ -4,7 +4,7 @@ echo "安装常用的扩展库工具" &&
 yum install -y openssh-server git wget htop glibc-devel cmake ncurses-devel zlib-devel perl flex bison net-tools  yum-config-manager yum-utils subversion ntpdate device-mapper-persistent-data lvm2 epel-release libxml2 libxml2-devel  openssl  openssl-devel  curl  curl-devel  libjpeg  libjpeg-devel  libpng  libpng-devel  freetype  freetype-devel  pcre  pcre-devel  libxslt  libxslt-devel  bzip2  bzip2-devel net-tools vim lrzsz tree screen lsof tcpdump nc mtr nmap libxml2 libxml2-dev libxslt-devel  gd-devel  GeoIP GeoIP-devel GeoIP-data g oniguruma oniguruma-develperftools libuuid-devel libblkid-devel libudev-devel fuse-devel libedit-devel libatomic_ops-devel gcc-c++ gcc+ gcc trousers-devel gettext gettext-devel gettext-common-devel openssl-devel libffi-devel bzip2  bzip2 bzip2-devel ImageMagick-devel libicu-devel sqlite-devel oniguruma oniguruma-devel
 echo "安装完毕" &&
 echo "------------------------------------------------------------------------------------------------------------------------------------------------------------------" && 
-echo "更新YUM源为阿里云源" &&
+echo "更新YUM源为阿里云源" && mv /etc/yum.repos.d/CentOS-Base.repo /etc/yum.repos.d/CentOS-Base.repo.backup && 
 wget -O /etc/yum.repos.d/CentOS-Base.repo https://mirrors.aliyun.com/repo/Centos-7.repo && yum makecache fast && yum update -y  &&
 echo "更新成功" &&
 echo "------------------------------------------------------------------------------------------------------------------------------------------------------------------" && 
@@ -22,7 +22,7 @@ echo "--------------------------------------------------------------------------
 echo "PHP版本选择对照" && 
 echo " 1  ----> 5.3; 2  ----> 5.4; 3  ----> 5.5; 4  ----> 5.6; 5  ----> 7.0; 6  ----> 7.1; 7  ----> 7.2; 8  ----> 7.3 " && 
 echo "安装PHP-7.2" &&
-/usr/local/oneinstack/install.sh --php_option 7 --phpcache_option 1 --php_extensions zendguardloader,ioncube,sourceguardian,imagick,gmagick,yaf,fileinfo,imap,ldap,phalcon,redis,memcached,memcache,mongodb,swoole,xdebug,curl,calendar,bcmath,bz2,Core,ctype,date,dom,ereg,exif,filter,ftp,gettext,hash,iconv,igbinaryinotify,json,libxml,mbstring,mhash,mysql,mysqli,mysqlnd,openssl,pcntl,pcre,PDO,pdo_mysql,pdo_sqlite,Phar,posix,readline,Reflection,session,shmop,SimpleXML,sockets,SPL,sqlite3,standard,sysvmsg,sysvsem,sysvshmswoole,tokenizer,wddx,xml,xmlreader,xmlwriter,xslyaf,zip,zlib &&
+/usr/local/oneinstack/install.sh --php_option 7 --phpcache_option 1 --php_extensions zendguardloader,ioncube,sourceguardian,gmagick,yaf,fileinfo,imap,ldap,phalcon,redis,memcached,memcache,mongodb,swoole,xdebug,curl,calendar,bcmath,bz2,Core,ctype,date,dom,ereg,exif,filter,ftp,gettext,hash,iconv,igbinaryinotify,json,libxml,mbstring,mhash,mysql,mysqli,mysqlnd,openssl,pcntl,pcre,PDO,pdo_mysql,pdo_sqlite,Phar,posix,readline,Reflection,session,shmop,SimpleXML,sockets,SPL,sqlite3,standard,sysvmsg,sysvsem,sysvshmswoole,tokenizer,wddx,xml,xmlreader,xmlwriter,xslyaf,zip,zlib &&
 echo "PHP-7.2安装完毕" && /usr/local/php/bin/php -m &&  
 echo "------------------------------------------------------------------------------------------------------------------------------------------------------------------" && 
 
@@ -107,17 +107,22 @@ restrict ntp5.cloud.aliyuncs.com nomodify notrap nopeer noquery
 server ntp6.cloud.aliyuncs.com iburst minpoll 4 maxpoll 10
 restrict ntp6.cloud.aliyuncs.com nomodify notrap nopeer noquery
 EOF
-echo "同步完毕" && crontab -l  && date && 
+echo "同步完毕" && date && 
 echo "------------------------------------------------------------------------------------------------------------------------------------------------------------------" && 
 
 
 echo "安装Nodejs" && cd /usr/local/  && 
-wget https://nodejs.org/download/release/v8.14.1/node-v8.14.1-linux-arm64.tar.gz && node-v8.14.1-linux-arm64.tar.gz && 
-rm -f /usr/bin/npm && rm -f /usr/bin/npm && 
+wget https://nodejs.org/download/release/v8.14.1/node-v8.14.1-linux-arm64.tar.gz && tar -xvf node-v8.14.1-linux-arm64.tar.gz && 
+ll /usr/local/node-v8.14.1-linux-arm64/bin &&
 ln -s /usr/local/node-v8.14.1-linux-arm64/bin/node /usr/bin/node &&
 ln -s /usr/local/node-v8.14.1-linux-arm64/bin/npm /usr/bin/npm && 
 /usr/local/node-v8.14.1-linux-arm64/bin/npm config set registry https://registry.npm.taobao.org  && 
+npm install cnpm -g && 
+ln -s /usr/local/node-v8.14.1-linux-arm64/bin/cnpm /usr/bin/cnpm && 
+npm install nrm -g && 
+ln -s /usr/local/node-v8.14.1-linux-arm64/bin/nrm /usr/bin/nrm && 
 npm config get registry &&
+nrm ls && 
 echo "nodejs安装完毕"
 echo "------------------------------------------------------------------------------------------------------------------------------------------------------------------" && 
 
@@ -135,6 +140,8 @@ wget http://download.redis.io/releases/redis-5.0.9.tar.gz && tar -xvf redis-5.0.
 #/usr/local/redis-5.0.9/src/redis-server ./redis.conf
 echo "Redis 安装完毕" &&
 echo "------------------------------------------------------------------------------------------------------------------------------------------------------------------" && 
+
+
 
 
 echo "################################################################## Congratulations #######################################################################" 
