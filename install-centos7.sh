@@ -68,6 +68,13 @@ echo "--------------------------------------------------------------------------
 # echo "------------------------------------------------------------------------------------------------------------------------------------------------------------------" && 
 
 
+# pip install virtualenv virtualenvwrapper  
+# vim ~/.bashrc
+# export WORKON_HOME=$HOME/.virtualenvs
+# export VIRTUALENVWRAPPER_PYTHON=/usr/local/python3/bin/python3
+# # 指定virtualenv的路径
+# export VIRTUALENVWRAPPER_VIRTUALENV=/usr/local/python3/bin/virtualenv
+# source /usr/local/python3/bin/virtualenvwrapper.sh
 
 echo "修改Python-pip为阿里云源" && mkdir ~/.pip && touch ~/.pip/pip.conf && 
 cat <<EOF > ~/.pip/pip.conf
