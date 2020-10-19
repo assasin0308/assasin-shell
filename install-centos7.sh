@@ -198,6 +198,19 @@ echo "安装Docker-ce完毕" &&
 echo "------------------------------------------------------------------------------------------------------------------------------------------------------------------" && 
 
 
+echo "安装Jenkins " && 
+wget -O /etc/yum.repos.d/jenkins.repo https://pkg.jenkins.io/redhat-stable/jenkins.repo && 
+rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io.key && 
+yum upgrade -y && 
+yum install jenkins java-1.8.0-openjdk-devel -y  && 
+systemctl daemon-reload && 
+systemclt start jenkins && 
+systemclt status jenkins && 
+echo "安装Jenkins完毕   http://<ip>:8080  " &&
+echo "------------------------------------------------------------------------------------------------------------------------------------------------------------------" && 
+
+
+
 echo "安装Kubernetes" && 
 cat <<EOF > /etc/yum.repos.d/kubernetes.repo
 [kubernetes]
