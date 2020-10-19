@@ -209,7 +209,7 @@ echo " -------------------------------  prometheus配置 prometheus.yml  -------
 
 
 
-echo "---------------------- 安装NGINX 1.15   ------------------" &&
+echo "----------------------------------- 安装NGINX 1.15   ---------------------------------" &&
 # 直播必装模块
 cd /usr/local/ && 
 # wget https://github.com/arut/nginx-rtmp-module/archive/v1.2.1.tar.gz
@@ -227,6 +227,35 @@ cd  /usr/local/nginx-1.15.12 && \
 make && make install && 
 /usr/local/nginx/sbin/nginx  && 
 curl 127.0.0.1 && 
+# 格式化nginx日志为json格式
+log_format access_json '{"time_local": "$time_local", '
+      '"status": $status, '
+      '"request_method": "$request_method", '
+      '"query_string": "$query_string", '
+      '"script_name": "$fastcgi_script_name", '
+      '"request_uri": "$request_uri", '
+      '"document_root": "$document_root", '
+      '"server_protocol": "$server_protocol", '
+      '"request_scheme": "$scheme", '
+      '"content_type": "$content_type", '
+      '"server_protocol": "$server_protocol", '
+      '"content_length": "$content_length", '
+      '"remote_addr": "$remote_addr", '
+      '"remote_user": "$remote_user", '
+      '"remote_port": $remote_port, '
+      '"server_port": $server_port, '
+      '"server_name": "$server_name", '
+      '"referer": "$http_referer", '
+      '"request": "$request", '
+      '"bytes": $body_bytes_sent, '
+      '"agent": "$http_user_agent", '
+      '"x_forwarded": "$http_x_forwarded_for", '
+      '"up_addr": "$upstream_addr",'
+      '"up_host": "$upstream_http_host",'
+      '"upstream_time": "$upstream_response_time",'
+      '"request_time": "$request_time"'
+      ' }';
+      
 echo "---------------------- 安装NGINX 1.15 success    ------------------" &&
 
 
@@ -368,7 +397,87 @@ echo "Redis 安装完毕" &&
 echo "------------------------------------------------------------------------------------------------------------------------------------------------------------------" && 
 
 
+############################ Elasticsearch & Logstash & Kibana ############################################
+# elasticsearch
+rpm --import https://artifacts.elastic.co/GPG-KEY-elasticsearch && 
+cat <<EOF >/etc/yum.repos.d/elasticsearch.repo
+[elasticsearch]
+name=Elasticsearch repository for 7.x packages
+baseurl=https://artifacts.elastic.co/packages/7.x/yum
+gpgcheck=1
+gpgkey=https://artifacts.elastic.co/GPG-KEY-elasticsearch
+enabled=0
+autorefresh=1
+type=rpm-md
+EOF
+yum install --enablerepo=elasticsearch elasticsearch && 
+systemctl daemon-reload && 
+systemctl start elasticsearch &&
+systemctl status elasticsearch &&
+systemctl restart elasticsearch &&
+# /etc/elasticsearch/elasticsearch.yml
+# http.cors.enabled: true 
+# http.cors.allow-origin: "*"
+# 测试
+curl 127.0.0.1:9200
 
+# logstash
+sudo rpm --import https://artifacts.elastic.co/GPG-KEY-elasticsearch
+cat <<EOF >/etc/yum.repos.d/logstash.repo
+[logstash-7.x]
+name=Elastic repository for 7.x packages
+baseurl=https://artifacts.elastic.co/packages/7.x/yum
+gpgcheck=1
+gpgkey=https://artifacts.elastic.co/GPG-KEY-elasticsearch
+enabled=1
+autorefresh=1
+type=rpm-md
+EOF
+yum install logstash -y && 
+systemctl daemon-reload && 
+systemctl start logstash &&
+systemctl status logstash &&
+systemctl restart logstash 
+
+# /etc/logstash.conf
+# input {
+#     file {
+#       path => "/apps/tomcat/logs/tomcat_access_log.*.log"
+#       type => "tomcat-access-log-101"
+#       start_position => "beginning"
+#       stat_interval => "2"
+#       codec => "json"
+#    }
+# }
+
+# output {
+#     elasticsearch {
+#        hosts => ["192.168.2.101:9200"]
+#        index => "logstash-tomcat-access-log-101-%{++YYYY.MM.dd}"
+#     }
+#     file {
+#         path => "/tmp/tomcat.txt"
+#     }
+# }
+# kibana
+rpm --import https://artifacts.elastic.co/GPG-KEY-elasticsearch && 
+cat <<EOF >/etc/yum.repos.d/kibana.repo
+[kibana-7.x]
+name=Kibana repository for 7.x packages
+baseurl=https://artifacts.elastic.co/packages/7.x/yum
+gpgcheck=1
+gpgkey=https://artifacts.elastic.co/GPG-KEY-elasticsearch
+enabled=1
+autorefresh=1
+type=rpm-md
+EOF
+yum install kibana -y && 
+systemctl daemon-reload && 
+systemctl start kibana &&
+systemctl status kibana &&
+systemctl restart kibana &&
+
+############################ Elasticsearch & Logstash & Kibana ############################################
 
 echo "################################################################## Congratulations #######################################################################" 
 
