@@ -23,20 +23,30 @@ echo "--------------------------------------------------------------------------
 echo "---------------------------------- 安装TiDB v4.0.7  ---------------------------------" &&
 wget http://download.pingcap.org/tidb-latest-linux-amd64.tar.gz && 
 wget http://download.pingcap.org/tidb-latest-linux-amd64.sha256 && 
-wget https://dl.grafana.com/oss/release/grafana-5.4.3-1.x86_64.rpm && 
-yum install -y  /usr/local/grafana-5.4.3-1.x86_64.rpm && 
-# systemctl restart grafana-server
 sha256sum -c tidb-latest-linux-amd64.sha256 && 
 tar -xzf tidb-latest-linux-amd64.tar.gz && 
 cd  /usr/local/tidb-v4.0.7-linux-amd64 && 
 ll /usr/local/tidb-v4.0.7-linux-amd64/bin && 
 echo " ----------------- 启动PD server,TiKV server ,TiDB server ----------- " &&
 # 启动PD server
-/usr/local/tidb-v4.0.7-linux-amd64/bin/pd-server  --data-dir=/usr/local/tidb-v4.0.7-linux-amd64/pd  --log-file=/usr/local/tidb-v4.0.7-linux-amd64/pd.log &
+/usr/local/tidb-v4.0.7-linux-amd64/bin/pd-server  --data-dir=/usr/local/tidb-v4.0.7-linux-amd64/pd -metrics-addr="127.0.0.1:9090" --log-file=/usr/local/tidb-v4.0.7-linux-amd64/pd.log &  
 # 启动TiKV server
 /usr/local/tidb-v4.0.7-linux-amd64/bin/tikv-server --pd="0.0.0.0:2379" --data-dir=/usr/local/tidb-v4.0.7-linux-amd64/tikv --log-file=/usr/local/tidb-v4.0.7-linux-amd64/tikv.log &
 # 启动TiDB server
 /usr/local/tidb-v4.0.7-linux-amd64/bin/tidb-server --store=tikv --path="0.0.0.0:2379" --log-file=/usr/local/tidb-v4.0.7-linux-amd64/tidb.log &
+# 终端登录 TIDB
+# mysql -h 127.0.0.1 -P 4000 -u root -D test
+# 添加账户并授予权限
+# create user assasin@localhost identified by '123456';
+# grant all  on *.* to assasin@localhost indentified by '123456';
+# grant all privileges on *.* to assasin@'%' identified by '123456';
+# grant all privileges on *.* to assasin@'%' identified by '123456' with grant option;
+# FLUSH PRIVILEGES;
+
+# 配置prometheus api
+# curl -X POST -d '{"metric-storage":"http://{127.0.0.1:9090}"}' http://{127.0.0.1:2379}/pd/api/v1/config
+
+
 echo " ----------------- 启动 Success ----------- " &&
 netstat -lntp && 
 echo " ----------------- 配置TiDbB Dashboard,Nginx反向代理 127.0.0.1:2379 ----------- " &&
@@ -55,7 +65,116 @@ server {
 }
 EOF
 echo " TiDB Dashboard访问URL: http://0.0.0.0:2379/dashboard,代理后为 http://<ip>:81/dashboard " && 
+echo " TiDB 集群状态访问URL:http://<ip>/pd/api/v1/config " && 
 echo "------------------------------------------------------------------------------------------------------------------------------------------------------------------" && 
+
+
+echo " ------------------- 安装 grafana  -------------------------- " &&
+wget https://dl.grafana.com/oss/release/grafana-5.4.3-1.x86_64.rpm && 
+yum install -y  /usr/local/grafana-5.4.3-1.x86_64.rpm && 
+# systemctl restart grafana-server
+# grafana-cli plugins install alexanderzobnin-zabbix-app # 安装zabbix插件
+echo " -------------------  grafana Success  -------------------------- " &&
+
+
+
+echo " ------------------- 安装 Prometheus https://prometheus.io/download/ -------------------------- " &&
+wget https://github.com/prometheus/prometheus/releases/download/v2.14.0/prometheus-2.14.0.linux-amd64.tar.gz && 
+tar zxvf prometheus-2.14.0.linux-amd64.tar.gz -C /usr/local/ && 
+cat <<EOF > /etc/init.d/prometheus-server
+#!/bin/bash
+# auditd        Startup script
+# chkconfig: 2345 14 87
+# description: This is Startup script
+# 服务器名
+export SERVICE=prometheus
+# 服务端口
+export PORT=9090
+# 基础目录
+export BASE_DIR=/usr/local/prometheus-2.14.0.linux-amd64
+. /etc/init.d/functions 
+# 服务相关命令
+start(){
+    echo "${SERVICE} starting....."
+    cd $BASE_DIR;nohup ${BASE_DIR}/prometheus --config.file=${BASE_DIR}/prometheus.yml --storage.tsdb.path=${BASE_DIR}/data &
+    if [ $? -eq 0 ];then
+        action "$SERVICE is starting" /bin/true
+    else
+        action "$SERVICE is starting" /bin/false
+    fi
+}
+stop(){
+    killall -9 $SERVICE
+    if [ $? -eq 0 ];then
+        action "$SERVICE is stoping" /bin/true
+    else
+        action "$SERVICE is stoping" /bin/false
+    fi 
+}
+status(){
+    if [ `ss -tunlp|grep ${PORT}|awk '{print $5}'|cut -d: -f2` = ${PORT} ];then
+            echo "${SERVICE} is running....."
+    else
+            echo "${SERVICE} is stopping....."
+    fi
+}
+case $1 in
+start)
+    start
+    ;;
+stop)
+    stop
+    ;;
+restart)
+    stop
+    start
+    ;;
+status)
+    status
+    ;;
+*)
+   echo "$0 <start|stop|restart>"
+esac
+EOF
+chmod +x /etc/init.d/prometheus-server && 
+chkconfig --add prometheus-server && 
+chkconfig --level 2345 prometheus-server on && 
+/etc/init.d/prometheus-server start &&  
+#/etc/init.d/prometheus-server restart &&  
+#/etc/init.d/prometheus-server stop &&  
+echo " -------------------------------  prometheus配置 prometheus.yml  ------------------------------- " && 
+# A scrape configuration containing exactly one endpoint to scrape:
+# Here it's Prometheus itself.
+# scrape_configs:
+  # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
+  # - job_name: 'prometheus'
+
+    # metrics_path defaults to '/metrics'
+    # scheme defaults to 'http'.
+
+  #   static_configs:
+  #   - targets: ['0.0.0.0:9090']
+
+  # - job_name: 'tidb'
+  #   honor_labels: true  # 不要覆盖job和实例的label
+  #   static_configs:
+  #   - targets:
+  #     - '0.0.0.0:10080'
+
+
+  # - job_name: 'pd'
+  #   honor_labels: true # 不要覆盖job和实例的label
+  #   static_configs:
+  #   - targets:
+  #     - '0.0.0.0:2379'
+  #     - '127.0.0.1:2379'
+
+  # - job_name: 'tikv'
+  #   honor_labels: true # 不要覆盖job和实例的label
+  #   static_configs:
+  #   - targets:
+  #     - '0.0.0.0:20180'
+  #     - '127.0.0.1:20180'
 
 
 
