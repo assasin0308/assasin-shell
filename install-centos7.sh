@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 echo echo "---------------------------- 使用root用户操作 -------------------------------" &&
 echo "安装常用的扩展库工具" &&
-yum install -y openssh-server git java-11-openjdk wget pstree htop glibc-devel cmake ncurses-devel zlib-devel perl flex bison net-tools  yum-config-manager yum-utils subversion ntpdate device-mapper-persistent-data lvm2 epel-release libxml2 libxml2-devel  openssl  openssl-devel  curl  curl-devel  libjpeg  libjpeg-devel  libpng  libpng-devel  freetype  freetype-devel  pcre  pcre-devel  libxslt  libxslt-devel  bzip2  bzip2-devel net-tools vim lrzsz tree screen lsof tcpdump nc mtr nmap libxml2 libxml2-dev libxslt-devel  gd-devel  GeoIP GeoIP-devel GeoIP-data g oniguruma oniguruma-develperftools libuuid-devel libblkid-devel libudev-devel fuse-devel libedit-devel libatomic_ops-devel gcc-c++ gcc+ gcc trousers-devel gettext gettext-devel gettext-common-devel openssl-devel libffi-devel bzip2  bzip2 bzip2-devel ImageMagick-devel libicu-devel sqlite-devel oniguruma oniguruma-devel
+yum install -y openssh-server git java-11-openjdk wget htop glibc-devel pstree cmake ncurses-devel zlib-devel perl flex bison net-tools  yum-config-manager yum-utils subversion ntpdate device-mapper-persistent-data lvm2 epel-release libxml2 libxml2-devel  openssl  openssl-devel  curl  curl-devel  libjpeg  libjpeg-devel  libpng  libpng-devel  freetype  freetype-devel  pcre  pcre-devel  libxslt  libxslt-devel  bzip2  bzip2-devel net-tools vim lrzsz tree screen lsof tcpdump nc mtr nmap libxml2 libxml2-dev libxslt-devel  gd-devel  GeoIP GeoIP-devel GeoIP-data g oniguruma oniguruma-develperftools libuuid-devel libblkid-devel libudev-devel fuse-devel libedit-devel libatomic_ops-devel gcc-c++ gcc+ gcc trousers-devel gettext gettext-devel gettext-common-devel openssl-devel libffi-devel bzip2  bzip2 bzip2-devel ImageMagick-devel libicu-devel sqlite-devel oniguruma oniguruma-devel
 echo "安装完毕" &&
 echo "------------------------------------------------------------------------------------------------------------------------------------------------------------------" && 
 echo "更新YUM源为阿里云源" && mv /etc/yum.repos.d/CentOS-Base.repo /etc/yum.repos.d/CentOS-Base.repo.backup && 
@@ -13,11 +13,53 @@ systemctl status firewalld.service && systemctl disable firewalld.service && sys
 echo "------------------------------------------------------------------------------------------------------------------------------------------------------------------" && 
 
 
-echo "安装Mysql5.7 用户名: root,密码:root" &
+echo "安装Mysql5.7 用户名: root,密码:root" &&
 wget -c http://mirrors.linuxeye.com/oneinstack-full.tar.gz && tar xzf oneinstack-full.tar.gz && ./oneinstack/install.sh --db_option 2 --dbinstallmethod 1 --dbrootpwd root &
 systemctl start mysql && netstat -lntp &&
 echo "安装Mysql5.7完毕" &&
 echo "------------------------------------------------------------------------------------------------------------------------------------------------------------------" && 
+
+
+echo "---------------------------------- 安装TiDB v4.0.7  ---------------------------------" &&
+wget http://download.pingcap.org/tidb-latest-linux-amd64.tar.gz && 
+wget http://download.pingcap.org/tidb-latest-linux-amd64.sha256 && 
+wget https://dl.grafana.com/oss/release/grafana-5.4.3-1.x86_64.rpm && 
+yum install -y  /usr/local/grafana-5.4.3-1.x86_64.rpm && 
+# systemctl restart grafana-server
+sha256sum -c tidb-latest-linux-amd64.sha256 && 
+tar -xzf tidb-latest-linux-amd64.tar.gz && 
+cd  /usr/local/tidb-v4.0.7-linux-amd64 && 
+ll /usr/local/tidb-v4.0.7-linux-amd64/bin && 
+echo " ----------------- 启动PD server,TiKV server ,TiDB server ----------- " &&
+# 启动PD server
+/usr/local/tidb-v4.0.7-linux-amd64/bin/pd-server  --data-dir=/usr/local/tidb-v4.0.7-linux-amd64/pd  --log-file=/usr/local/tidb-v4.0.7-linux-amd64/pd.log &
+# 启动TiKV server
+/usr/local/tidb-v4.0.7-linux-amd64/bin/tikv-server --pd="0.0.0.0:2379" --data-dir=/usr/local/tidb-v4.0.7-linux-amd64/tikv --log-file=/usr/local/tidb-v4.0.7-linux-amd64/tikv.log &
+# 启动TiDB server
+/usr/local/tidb-v4.0.7-linux-amd64/bin/tidb-server --store=tikv --path="0.0.0.0:2379" --log-file=/usr/local/tidb-v4.0.7-linux-amd64/tidb.log &
+echo " ----------------- 启动 Success ----------- " &&
+netstat -lntp && 
+echo " ----------------- 配置TiDbB Dashboard,Nginx反向代理 127.0.0.1:2379 ----------- " &&
+cat <<EOF > /usr/local/nginx/conf/vhost/tidb-dashboard.conf
+upstream tidbserver { 
+    server 127.0.0.1:2379;
+}
+server {
+     listen   81;
+     server_name  _;
+     access_log /data/wwwlogs/access_nginx.log access_json;
+     index  index.html index.htm;
+     location / {
+         proxy_pass   http://tidbserver;
+     }
+}
+EOF
+echo " TiDB Dashboard访问URL: http://0.0.0.0:2379/dashboard,代理后为 http://<ip>:81/dashboard " && 
+echo "------------------------------------------------------------------------------------------------------------------------------------------------------------------" && 
+
+
+
+
 
 echo "PHP版本选择对照" && 
 echo " 1  ----> 5.3; 2  ----> 5.4; 3  ----> 5.5; 4  ----> 5.6; 5  ----> 7.0; 6  ----> 7.1; 7  ----> 7.2; 8  ----> 7.3 " && 
