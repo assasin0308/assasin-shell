@@ -1,7 +1,8 @@
 #!/usr/bin/bash
 echo echo "---------------------------- 使用root用户操作 -------------------------------" &&
 echo "安装常用的扩展库工具" &&
-yum install -y openssh-server git java-11-openjdk wget htop glibc-devel pstree cmake ncurses-devel zlib-devel perl flex bison net-tools  yum-config-manager yum-utils subversion ntpdate device-mapper-persistent-data lvm2 epel-release libxml2 libxml2-devel  openssl  openssl-devel  curl  curl-devel  libjpeg  libjpeg-devel  libpng  libpng-devel  freetype  freetype-devel  pcre  pcre-devel  libxslt  libxslt-devel  bzip2  bzip2-devel net-tools vim lrzsz tree screen lsof tcpdump nc mtr nmap libxml2 libxml2-dev libxslt-devel  gd-devel  GeoIP GeoIP-devel GeoIP-data g oniguruma oniguruma-develperftools libuuid-devel libblkid-devel libudev-devel fuse-devel libedit-devel libatomic_ops-devel gcc-c++ gcc+ gcc trousers-devel gettext gettext-devel gettext-common-devel openssl-devel libffi-devel bzip2  bzip2 bzip2-devel ImageMagick-devel libicu-devel sqlite-devel oniguruma oniguruma-devel
+yum install -y openssh-server git telnet java-11-openjdk wget htop glibc-devel pstree cmake ncurses-devel  zlib-devel perl flex bison net-tools  yum-config-manager yum-utils subversion ntpdate device-mapper-persistent-data lvm2 epel-release libxml2 libxml2-devel  openssl  openssl-devel  curl  curl-devel  libjpeg  libjpeg-devel  libpng  libpng-devel  freetype  freetype-devel  pcre  pcre-devel  libxslt  libxslt-devel  bzip2  bzip2-devel net-tools vim lrzsz tree screen lsof tcpdump nc mtr nmap libxml2 libxml2-dev libxslt-devel  gd-devel  GeoIP GeoIP-devel GeoIP-data g oniguruma oniguruma-develperftools libuuid-devel libblkid-devel libudev-devel fuse-devel libedit-devel libatomic_ops-devel gcc-c++ gcc+ gcc trousers-devel gettext gettext-devel gettext-common-devel openssl-devel libffi-devel bzip2  bzip2 bzip2-devel ImageMagick-devel libicu-devel sqlite-devel oniguruma oniguruma-devel
+
 echo "安装完毕" &&
 echo "------------------------------------------------------------------------------------------------------------------------------------------------------------------" && 
 echo "更新YUM源为阿里云源" && mv /etc/yum.repos.d/CentOS-Base.repo /etc/yum.repos.d/CentOS-Base.repo.backup && 
@@ -13,11 +14,40 @@ systemctl status firewalld.service && systemctl disable firewalld.service && sys
 echo "------------------------------------------------------------------------------------------------------------------------------------------------------------------" && 
 
 
-echo "安装Mysql5.7 用户名: root,密码:root" &&
-wget -c http://mirrors.linuxeye.com/oneinstack-full.tar.gz && tar xzf oneinstack-full.tar.gz && ./oneinstack/install.sh --db_option 2 --dbinstallmethod 1 --dbrootpwd root &
-systemctl start mysql && netstat -lntp &&
-echo "安装Mysql5.7完毕" &&
+
+echo "---------------------------------- 安装Python虚拟环境  ---------------------------------" &&
+# wget https://www.python.org/ftp/python/3.9.0/Python-3.9.0.tar.xz
+# wget https://www.python.org/ftp/python/3.6.4/Python-3.6.4.tar.xz
+# pip install virtualenv virtualenvwrapper  
+# vim ~/.bashrc
+# export WORKON_HOME=$HOME/.virtualenvs
+# export VIRTUALENVWRAPPER_PYTHON=/usr/local/python3/bin/python3
+# # 指定virtualenv的路径
+# export VIRTUALENVWRAPPER_VIRTUALENV=/usr/local/python3/bin/virtualenv
+# source /usr/local/python3/bin/virtualenvwrapper.sh
+
+echo "修改Python-pip为阿里云源" && mkdir ~/.pip && touch ~/.pip/pip.conf && 
+cat <<EOF > ~/.pip/pip.conf
+[global]
+index-url = https://mirrors.aliyun.com/pypi/simple/
+
+[install]
+trusted-host=mirrors.aliyun.com
+EOF
+echo "修改完毕" &&
 echo "------------------------------------------------------------------------------------------------------------------------------------------------------------------" && 
+
+
+echo "---------------------------------- 安装LNMP环境 NGINX,PHP 7.4,MySQL5.7 root & 19920308shibin  ---------------------------------" &&
+wget -c http://mirrors.linuxeye.com/oneinstack-full.tar.gz && tar xzf oneinstack-full.tar.gz && ./oneinstack/install.sh --nginx_option 1 --php_option 9 --phpcache_option 1 --php_extensions zendguardloader,ioncube,fileinfo,imap,ldap,yaf,redis,memcached,memcache,mongodb,swoole --db_option 2 --dbinstallmethod 1 --dbrootpwd 19920308shibin
+
+echo "LNMP安装完毕" &&
+# Composer 阿里云镜像
+composer config -g repo.packagist composer https://mirrors.aliyun.com/composer/ &&
+echo "------------------------------------------------------------------------------------------------------------------------------------------------------------------" && 
+
+
+
 
 
 echo "---------------------------------- 安装TiDB v4.0.7  ---------------------------------" &&
@@ -47,7 +77,7 @@ echo " ----------------- 启动PD server,TiKV server ,TiDB server ----------- " 
 # curl -X POST -d '{"metric-storage":"http://{127.0.0.1:9090}"}' http://{127.0.0.1:2379}/pd/api/v1/config
 
 
-echo " ----------------- 启动 Success ----------- " &&
+echo " --------------------------------------- 启动 Success ------------------------------------- " &&
 netstat -lntp && 
 echo " ----------------- 配置TiDbB Dashboard,Nginx反向代理 127.0.0.1:2379 ----------- " &&
 cat <<EOF > /usr/local/nginx/conf/vhost/tidb-dashboard.conf
@@ -179,6 +209,38 @@ echo " -------------------------------  prometheus配置 prometheus.yml  -------
 
 
 
+echo "---------------------- 安装NGINX 1.15   ------------------" &&
+# 直播必装模块
+cd /usr/local/ && 
+# wget https://github.com/arut/nginx-rtmp-module/archive/v1.2.1.tar.gz
+# tar -zxvf v1.2.1.tar.gz && 
+wget http://nginx.org/download/nginx-1.15.12.tar.gz && 
+tar zxvf nginx-1.15.12.tar.gz && 
+cd  /usr/local/nginx-1.15.12 && \
+./configure --prefix=/usr/local/nginx --with-select_module --without-select_module --with-poll_module --without-poll_module \
+--with-threads --with-file-aio --with-http_ssl_module --with-http_v2_module --with-http_realip_module --with-http_addition_module \
+--with-http_xslt_module --with-http_sub_module --with-http_dav_module --with-http_flv_module --with-http_mp4_module \
+--with-http_gunzip_module --with-http_gzip_static_module --with-http_auth_request_module --with-http_random_index_module  \
+--with-http_secure_link_module --with-http_degradation_module --with-http_slice_module --with-mail --with-mail_ssl_module \
+--with-stream --with-stream=dynamic --with-stream_ssl_module --with-stream_realip_module  \
+--with-stream_ssl_preread_module --with-cpp_test_module --add-module=/usr/local/nginx-rtmp-module-1.2.1 && 
+make && make install && 
+/usr/local/nginx/sbin/nginx  && 
+curl 127.0.0.1 && 
+echo "---------------------- 安装NGINX 1.15 success    ------------------" &&
+
+
+echo "安装Mysql5.7 用户名: root,密码:root" &&
+wget -c http://mirrors.linuxeye.com/oneinstack-full.tar.gz && tar xzf oneinstack-full.tar.gz && ./oneinstack/install.sh --db_option 2 --dbinstallmethod 1 --dbrootpwd root &
+systemctl start mysql && netstat -lntp &&
+echo "安装Mysql5.7完毕" &&
+# 添加账户并授予权限
+# create user assasin@localhost identified by '123456';
+# grant all  on *.* to assasin@localhost indentified by '123456';
+# grant all privileges on *.* to assasin@'%' identified by '123456';
+# grant all privileges on *.* to assasin@'%' identified by '123456' with grant option;
+# FLUSH PRIVILEGES;
+echo "------------------------------------------------------------------------------------------------------------------------------------------------------------------" && 
 
 
 echo "PHP版本选择对照" && 
@@ -202,7 +264,9 @@ echo "安装Jenkins " &&
 wget -O /etc/yum.repos.d/jenkins.repo https://pkg.jenkins.io/redhat-stable/jenkins.repo && 
 rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io.key && 
 yum upgrade -y && 
-yum install jenkins java-1.8.0-openjdk-devel -y  && 
+yum install jenkins -y  &&
+yum install java-1.8.0-openjdk-devel -y  &&  # Java 8版本
+# yum install java-11-openjdk-devel -y  &&   # Java11版本
 systemctl daemon-reload && 
 systemclt start jenkins && 
 systemclt status jenkins && 
@@ -243,26 +307,6 @@ echo "--------------------------------------------------------------------------
 # echo "------------------------------------------------------------------------------------------------------------------------------------------------------------------" && 
 
 
-# pip install virtualenv virtualenvwrapper  
-# vim ~/.bashrc
-# export WORKON_HOME=$HOME/.virtualenvs
-# export VIRTUALENVWRAPPER_PYTHON=/usr/local/python3/bin/python3
-# # 指定virtualenv的路径
-# export VIRTUALENVWRAPPER_VIRTUALENV=/usr/local/python3/bin/virtualenv
-# source /usr/local/python3/bin/virtualenvwrapper.sh
-
-echo "修改Python-pip为阿里云源" && mkdir ~/.pip && touch ~/.pip/pip.conf && 
-cat <<EOF > ~/.pip/pip.conf
-[global]
-index-url = https://mirrors.aliyun.com/pypi/simple/
-
-[install]
-trusted-host=mirrors.aliyun.com
-EOF
-echo "修改完毕" &&
-echo "------------------------------------------------------------------------------------------------------------------------------------------------------------------" && 
-
-
 echo "同步时间" &&
 cat <<EOF > /etc/ntp.conf
 driftfile  /var/lib/ntp/drift
@@ -292,6 +336,12 @@ EOF
 echo "同步完毕" && date && 
 echo "------------------------------------------------------------------------------------------------------------------------------------------------------------------" && 
 
+
+######### 域名解析 #############################################################################
+# vim /etc/resolv.conf
+# nameserver 223.5.5.5
+# nameserver 223.6.6.6
+######### 域名解析 #############################################################################
 
 echo "安装Nodejs" && cd /usr/local/  && 
 wget https://nodejs.org/download/release/v8.14.1/node-v8.14.1-linux-arm64.tar.gz && tar -xvf node-v8.14.1-linux-arm64.tar.gz && 
