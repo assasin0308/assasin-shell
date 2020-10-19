@@ -255,7 +255,7 @@ log_format access_json '{"time_local": "$time_local", '
       '"upstream_time": "$upstream_response_time",'
       '"request_time": "$request_time"'
       ' }';
-      
+
 echo "---------------------- 安装NGINX 1.15 success    ------------------" &&
 
 
@@ -397,7 +397,7 @@ echo "Redis 安装完毕" &&
 echo "------------------------------------------------------------------------------------------------------------------------------------------------------------------" && 
 
 
-############################ Elasticsearch & Logstash & Kibana ############################################
+############################ Elasticsearch & Logstash & Kibana & Filebeats ############################################
 # elasticsearch
 rpm --import https://artifacts.elastic.co/GPG-KEY-elasticsearch && 
 cat <<EOF >/etc/yum.repos.d/elasticsearch.repo
@@ -459,6 +459,14 @@ systemctl restart logstash
 #         path => "/tmp/tomcat.txt"
 #     }
 # }
+
+
+# test logstash.conf
+# /usr/share/logstash/bin/logstash -f /etc/logstash/conf.d/systemlog.conf -t
+# /usr/share/logstash/bin/logstash -f /etc/logstash/conf.d/systemlog.conf  --config.reload.automatic
+# /usr/share/logstash/bin/logstash -f /etc/logstash/conf.d/nginx128.conf  --path.data=/var/lib/logstash/
+
+
 # kibana
 rpm --import https://artifacts.elastic.co/GPG-KEY-elasticsearch && 
 cat <<EOF >/etc/yum.repos.d/kibana.repo
@@ -477,7 +485,14 @@ systemctl start kibana &&
 systemctl status kibana &&
 systemctl restart kibana &&
 
+# Filebeat
+yum install filebeat -y && 
+# Heartbeat
+yum install heartbeat-elastic && 
+systemctl enable heartbeat-elastic  
 ############################ Elasticsearch & Logstash & Kibana ############################################
+
+
 
 echo "################################################################## Congratulations #######################################################################" 
 
