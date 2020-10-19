@@ -337,6 +337,7 @@ echo "--------------------------------------------------------------------------
 
 
 echo "同步时间" &&
+# echo "*/20 * * * * /usr/sbin/ntpdate -u ntp.api.bz >/dev/null &" >> /var/spool/cron/root
 cat <<EOF > /etc/ntp.conf
 driftfile  /var/lib/ntp/drift
 pidfile   /var/run/ntpd.pid
