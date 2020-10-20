@@ -100,9 +100,10 @@ echo "--------------------------------------------------------------------------
 
 
 echo " ------------------- 安装 grafana  ----------------------------- " &&
-wget https://dl.grafana.com/oss/release/grafana-5.4.3-1.x86_64.rpm && 
-yum install -y  /usr/local/grafana-5.4.3-1.x86_64.rpm && 
+wget https://dl.grafana.com/oss/release/grafana-5.4.3-1.x86_64.rpm   && 
+yum install -y  /usr/local/grafana-5.4.3-1.x86_64.rpm  && 
 # systemctl restart grafana-server
+# grafana-cli plugins install grafana-piechart-panel
 # grafana-cli plugins install alexanderzobnin-zabbix-app # 安装zabbix插件
 # grafana-cli --pluginUrl https://github.com/cloudspout/cloudspout-button-panel/releases/download/7.0.2/cloudspout-button-panel.zip plugins install cloudspout-button-panel 
 echo " -------------------  grafana Success  -------------------------- " &&
@@ -494,6 +495,10 @@ systemctl enable heartbeat-elastic
 ############################ Elasticsearch & Logstash & Kibana ############################################
 
 
+############################ Zabbix 监控系统  ############################################
+
+
+############################ ---------------- ############################################
 
 echo "################################################################## Congratulations #######################################################################" 
 
