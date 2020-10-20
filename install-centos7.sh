@@ -411,7 +411,7 @@ enabled=0
 autorefresh=1
 type=rpm-md
 EOF
-yum install --enablerepo=elasticsearch elasticsearch && 
+yum install --enablerepo=elasticsearch elasticsearch -y  && 
 systemctl daemon-reload && 
 systemctl start elasticsearch &&
 systemctl status elasticsearch &&
