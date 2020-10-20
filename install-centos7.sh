@@ -57,7 +57,7 @@ sha256sum -c tidb-latest-linux-amd64.sha256 &&
 tar -xzf tidb-latest-linux-amd64.tar.gz && 
 cd  /usr/local/tidb-v4.0.7-linux-amd64 && 
 ll /usr/local/tidb-v4.0.7-linux-amd64/bin && 
-echo " ----------------- 启动PD server,TiKV server ,TiDB server ----------- " &&
+echo " ----------------- 启动PD server,TiKV server ,TiDB server -------------------------- " &&
 # 启动PD server
 /usr/local/tidb-v4.0.7-linux-amd64/bin/pd-server  --data-dir=/usr/local/tidb-v4.0.7-linux-amd64/pd -metrics-addr="127.0.0.1:9090" --log-file=/usr/local/tidb-v4.0.7-linux-amd64/pd.log &  
 # 启动TiKV server
@@ -99,7 +99,7 @@ echo " TiDB 集群状态访问URL:http://<ip>/pd/api/v1/config " &&
 echo "------------------------------------------------------------------------------------------------------------------------------------------------------------------" && 
 
 
-echo " ------------------- 安装 grafana  -------------------------- " &&
+echo " ------------------- 安装 grafana  ----------------------------- " &&
 wget https://dl.grafana.com/oss/release/grafana-5.4.3-1.x86_64.rpm && 
 yum install -y  /usr/local/grafana-5.4.3-1.x86_64.rpm && 
 # systemctl restart grafana-server
@@ -209,7 +209,7 @@ echo " -------------------------------  prometheus配置 prometheus.yml  -------
 
 
 
-echo "----------------------------------- 安装NGINX 1.15   ---------------------------------" &&
+echo "----------------------------------- 安装Nginx 1.15   ---------------------------------" &&
 # 直播必装模块
 cd /usr/local/ && 
 # wget https://github.com/arut/nginx-rtmp-module/archive/v1.2.1.tar.gz
@@ -297,8 +297,8 @@ yum install jenkins -y  &&
 yum install java-1.8.0-openjdk-devel -y  &&  # Java 8版本
 # yum install java-11-openjdk-devel -y  &&   # Java11版本
 systemctl daemon-reload && 
-systemclt start jenkins && 
-systemclt status jenkins && 
+systemctl start jenkins && 
+systemctl status jenkins && 
 echo "安装Jenkins完毕   http://<ip>:8080  " &&
 echo "------------------------------------------------------------------------------------------------------------------------------------------------------------------" && 
 
