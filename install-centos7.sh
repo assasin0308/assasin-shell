@@ -99,14 +99,14 @@ echo " TiDB 集群状态访问URL:http://<ip>/pd/api/v1/config " &&
 echo "------------------------------------------------------------------------------------------------------------------------------------------------------------------" && 
 
 
-echo " ------------------- 安装 grafana  ----------------------------- " &&
+echo " ------------------- 安装 grafana  ------------------------------------------ " &&
 wget https://dl.grafana.com/oss/release/grafana-5.4.3-1.x86_64.rpm   && 
 yum install -y  /usr/local/grafana-5.4.3-1.x86_64.rpm  && 
 # systemctl restart grafana-server
 # grafana-cli plugins install grafana-piechart-panel
 # grafana-cli plugins install alexanderzobnin-zabbix-app # 安装zabbix插件
 # grafana-cli --pluginUrl https://github.com/cloudspout/cloudspout-button-panel/releases/download/7.0.2/cloudspout-button-panel.zip plugins install cloudspout-button-panel 
-echo " -------------------  grafana Success  -------------------------- " &&
+echo " -------------------  grafana Success  ------------------------------------- " &&
 
 
 
@@ -297,9 +297,7 @@ yum upgrade -y &&
 yum install jenkins -y  &&
 yum install java-1.8.0-openjdk-devel -y  &&  # Java 8版本
 # yum install java-11-openjdk-devel -y  &&   # Java11版本
-systemctl daemon-reload && 
-systemctl start jenkins && 
-systemctl status jenkins && 
+systemctl daemon-reload &&  systemctl start jenkins && systemctl status jenkins && 
 echo "安装Jenkins完毕   http://<ip>:8080  " &&
 echo "------------------------------------------------------------------------------------------------------------------------------------------------------------------" && 
 
@@ -322,19 +320,20 @@ echo "安装Kubernetes完毕" &&
 echo "------------------------------------------------------------------------------------------------------------------------------------------------------------------" && 
 
 
-# echo "安装MongoDB " && 
-# cat <<EOF > /etc/yum.repos.d/mongodb-org.repo
-# [mongodb-org] 
-# name = MongoDB Repository
-# baseurl = https://mirrors.aliyun.com/mongodb/yum/redhat/$releasever/mongodb-org/3.6/x86_64/
-# gpgcheck = 1 
-# enabled = 1 
-# gpgkey = https：// www.mongodb.org/static/pgp/server-3.6.asc
-# EOF
-# yum install -y mongodb && netstat -lntp
-# systemctl start mongodb && 
-# echo "安装MongoDB完毕" &&
-# echo "------------------------------------------------------------------------------------------------------------------------------------------------------------------" && 
+echo "安装MongoDB " && 
+cat <<EOF > /etc/yum.repos.d/mongodb-org.repo
+[mongodb-org-4.4]
+name=MongoDB Repository
+baseurl=https://repo.mongodb.org/yum/redhat/$releasever/mongodb-org/4.4/x86_64/
+gpgcheck=1
+enabled=1
+gpgkey=https://www.mongodb.org/static/pgp/server-4.4.asc
+EOF
+# yum install -y mongodb-org-4.4.1 mongodb-org-server-4.4.1 mongodb-org-shell-4.4.1 mongodb-org-mongos-4.4.1 mongodb-org-tools-4.4.1
+yum install -y mongodb-org && netstat -lntp
+systemctl start mongodb && 
+echo "安装MongoDB完毕" &&
+echo "------------------------------------------------------------------------------------------------------------------------------------------------------------------" && 
 
 
 echo "同步时间" &&
@@ -442,7 +441,7 @@ systemctl status logstash &&
 systemctl restart logstash 
 
 # /etc/logstash.conf
-# input {
+#  input {
 #     file {
 #       path => "/apps/tomcat/logs/tomcat_access_log.*.log"
 #       type => "tomcat-access-log-101"
@@ -495,7 +494,7 @@ systemctl enable heartbeat-elastic
 ############################ Elasticsearch & Logstash & Kibana ############################################
 
 
-############################ Zabbix 监控系统  ############################################
+############################ Zabbix 监控系统   ############################################
 
 
 ############################ ---------------- ############################################
