@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 echo echo "---------------------------- 使用root用户操作 -------------------------------" &&
 echo "安装常用的扩展库工具" &&
-yum install -y openssh-server git telnet java-11-openjdk wget htop glibc-devel pstree cmake ncurses-devel  zlib-devel perl flex bison net-tools  yum-config-manager yum-utils subversion ntpdate device-mapper-persistent-data lvm2 epel-release libxml2 libxml2-devel  openssl  openssl-devel  curl  curl-devel  libjpeg  libjpeg-devel  libpng  libpng-devel  freetype  freetype-devel  pcre  pcre-devel  libxslt  libxslt-devel  bzip2  bzip2-devel net-tools vim lrzsz tree screen lsof tcpdump nc mtr nmap libxml2 libxml2-dev libxslt-devel  gd-devel  GeoIP GeoIP-devel GeoIP-data g oniguruma oniguruma-develperftools libuuid-devel libblkid-devel libudev-devel fuse-devel libedit-devel libatomic_ops-devel gcc-c++ gcc+ gcc trousers-devel gettext gettext-devel gettext-common-devel openssl-devel libffi-devel bzip2  bzip2 bzip2-devel ImageMagick-devel libicu-devel sqlite-devel oniguruma oniguruma-devel
+yum install -y openssh-server git telnet java-11-openjdk wget htop glibc-devel pstree cmake ncurses-devel  zlib-devel perl flex bison net-tools  yum-config-manager yum-utils subversion ntpdate m4 unixODBC  unixODBC-devel device-mapper-persistent-data lvm2 epel-release libxml2 libxml2-devel  openssl  openssl-devel  curl  curl-devel  libjpeg  libjpeg-devel  libpng  libpng-devel  freetype  freetype-devel  pcre  pcre-devel  libxslt  libxslt-devel  bzip2  bzip2-devel net-tools vim lrzsz tree screen lsof tcpdump nc mtr nmap libxml2 libxml2-dev libxslt-devel  gd-devel  GeoIP GeoIP-devel GeoIP-data g oniguruma oniguruma-develperftools libuuid-devel libblkid-devel libudev-devel fuse-devel libedit-devel libatomic_ops-devel gcc-c++ gcc+ gcc trousers-devel gettext gettext-devel gettext-common-devel openssl-devel libffi-devel bzip2  bzip2 bzip2-devel ImageMagick-devel libicu-devel sqlite-devel oniguruma oniguruma-devel
 
 echo "安装完毕" &&
 echo "------------------------------------------------------------------------------------------------------------------------------------------------------------------" && 
@@ -18,6 +18,7 @@ echo "--------------------------------------------------------------------------
 echo "---------------------------------- 安装Python虚拟环境  ---------------------------------" &&
 # wget https://www.python.org/ftp/python/3.9.0/Python-3.9.0.tar.xz
 # wget https://www.python.org/ftp/python/3.6.4/Python-3.6.4.tar.xz
+# wget https://www.python.org/ftp/python/3.7.9/Python-3.7.9.tar.xz
 # pip install virtualenv virtualenvwrapper  
 # vim ~/.bashrc
 # export WORKON_HOME=$HOME/.virtualenvs
@@ -50,14 +51,14 @@ echo "--------------------------------------------------------------------------
 
 
 
-echo "---------------------------------- 安装TiDB v4.0.7  ---------------------------------" &&
+echo "---------------------------------- 安装TiDB v4.0.7  ----------------------------------------------" &&
 wget http://download.pingcap.org/tidb-latest-linux-amd64.tar.gz && 
 wget http://download.pingcap.org/tidb-latest-linux-amd64.sha256 && 
 sha256sum -c tidb-latest-linux-amd64.sha256 && 
 tar -xzf tidb-latest-linux-amd64.tar.gz && 
 cd  /usr/local/tidb-v4.0.7-linux-amd64 && 
 ll /usr/local/tidb-v4.0.7-linux-amd64/bin && 
-echo " ----------------- 启动PD server,TiKV server ,TiDB server -------------------------- " &&
+echo " ----------------- 启动PD server,TiKV server ,TiDB server ------------------------------------- " &&
 # 启动PD server
 /usr/local/tidb-v4.0.7-linux-amd64/bin/pd-server  --data-dir=/usr/local/tidb-v4.0.7-linux-amd64/pd -metrics-addr="127.0.0.1:9090" --log-file=/usr/local/tidb-v4.0.7-linux-amd64/pd.log &  
 # 启动TiKV server
@@ -368,9 +369,9 @@ echo "--------------------------------------------------------------------------
 
 
 ######### 域名解析 #############################################################################
-# vim /etc/resolv.conf
-# nameserver 223.5.5.5
-# nameserver 223.6.6.6
+vim /etc/resolv.conf
+nameserver 223.5.5.5
+nameserver 223.6.6.6
 ######### 域名解析 #############################################################################
 
 echo "安装Nodejs" && cd /usr/local/  && 
@@ -417,8 +418,8 @@ systemctl start elasticsearch &&
 systemctl status elasticsearch &&
 systemctl restart elasticsearch &&
 # /etc/elasticsearch/elasticsearch.yml
-# http.cors.enabled: true 
-# http.cors.allow-origin: "*"
+http.cors.enabled: true 
+http.cors.allow-origin: "*"
 # 测试
 curl 127.0.0.1:9200
 
@@ -498,6 +499,56 @@ systemctl enable heartbeat-elastic
 
 
 ############################ ---------------- ############################################
+
+
+############################ API Umbrella   ############################################
+curl https://bintray.com/nrel/api-umbrella-el7/rpm | sudo tee /etc/yum.repos.d/api-umbrella.repo 
+yum install api-umbrella -y 
+/etc/init.d/api-umbrella start
+
+############################ Rabbitmq 3.7.8   ############################################
+# http://erlang.org/download/
+wget http://erlang.org/download/otp_src_21.1.tar.gz
+tar -zxvf otp_src_21.1.tar.gz  
+./configure --prefix=/usr/local/erlang && make && make install
+# 配置环境变量
+vim /etc/profile
+PATH=$PATH:/usr/local/erlang/bin
+source /etc/profile
+
+# http://www.rabbitmq.com/which-erlang.html  && http://www.rabbitmq.com/install-generic-unix.html
+wget https://github.com/rabbitmq/rabbitmq-server/releases/download/v3.7.8/rabbitmq-server-generic-unix-3.7.8.tar.xz
+tar -xvf rabbitmq-server-generic-unix-3.7.8.tar.xz
+
+# 配置环境变量
+vim /etc/profile
+PATH=$PATH:/usr/local/rabbitmq_server-3.7.8/sbin
+source /etc/profile
+# 插件管理
+rabbitmq-plugins list
+# 添加web管理插件
+rabbitmq-plugins enable rabbitmq_management   
+
+# 后台启动rabbitmq服务
+rabbitmq-server -detached
+# stop server
+rabbitmqctl stop
+
+
+# 用户管理：
+# 添加用户： rabbitmqctl add_user username password
+# 删除用户： rabbitmqctl delete_user username
+# 修改密码： rabbitmqctl change_password username newpassword
+# 设置用户角色： rabbitmqctl set_user_tags username tag
+# 列出用户： rabbitmqctl list_users
+# 权限管理：
+# 列出所有用户权限： rabbitmqctl list_permissions
+# 查看制定用户权限： rabbitmqctl list_user_permissions username
+# 清除用户权限： rabbitmqctl clear_permissions [-p vhostpath] username
+# 设置用户权限： rabbitmqctl set_permissions [-p vhostpath] username conf write read
+#                           conf: 一个正则匹配哪些资源能被该用户访问
+#                           write：一个正则匹配哪些资源能被该用户写入
+#                           read：一个正则匹配哪些资源能被该用户读取
 
 echo "################################################################## Congratulations #######################################################################" 
 
