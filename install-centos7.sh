@@ -16,6 +16,7 @@ echo "--------------------------------------------------------------------------
 
 
 echo "---------------------------------- 安装Python虚拟环境  ---------------------------------" &&
+# apt-get install build-essential python-dev python-setuptools python-pip python-smbus libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev zlib1g-dev libc6-dev libsqlite3-dev tk-dev install libssl-dev openssl libffi-dev
 # wget https://www.python.org/ftp/python/3.9.0/Python-3.9.0.tar.xz
 # wget https://www.python.org/ftp/python/3.6.4/Python-3.6.4.tar.xz
 # wget https://www.python.org/ftp/python/3.7.9/Python-3.7.9.tar.xz
