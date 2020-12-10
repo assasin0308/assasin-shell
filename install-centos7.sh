@@ -301,6 +301,12 @@ yum makecache fast &&
 yum -y install docker-ce &&
 systemctl start docker && docker ps &&
 echo "安装Docker-ce完毕" &&
+vim /etc/docker/daemon.json
+{
+  "registry-mirrors": ["https://hr1upp6v.mirror.aliyuncs.com"]
+}
+sudo systemctl daemon-reload
+sudo systemctl restart docker
 echo "------------------------------------------------------------------------------------------------------------------------------------------------------------------" && 
 
 
