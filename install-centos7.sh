@@ -68,10 +68,10 @@ echo " ----------------- 启动PD server,TiKV server ,TiDB server --------------
 # 终端登录 TIDB
 # mysql -h 127.0.0.1 -P 4000 -u root -D test
 # 添加账户并授予权限
-# create user assasin@localhost identified by '123456';
-# grant all  on *.* to assasin@localhost indentified by '123456';
-# grant all privileges on *.* to assasin@'%' identified by '123456';
-# grant all privileges on *.* to assasin@'%' identified by '123456' with grant option;
+# create user root@localhost identified by '19920308shibin';
+# grant all privileges on *.* to root@localhost indentified by '19920308shibin';
+# grant all privileges on *.* to root@'%' identified by '19920308shibin';
+# grant all privileges on *.* to root@'%' identified by '19920308shibin' with grant option;
 # FLUSH PRIVILEGES;
 
 # 配置prometheus api
@@ -271,6 +271,18 @@ echo "安装Mysql5.7完毕" &&
 # grant all privileges on *.* to assasin@'%' identified by '123456';
 # grant all privileges on *.* to assasin@'%' identified by '123456' with grant option;
 # FLUSH PRIVILEGES;
+echo "------------------------------------------------------------------------------------------------------------------------------------------------------------------" && 
+
+
+echo "安装PostgreSQL: The World's Most Advanced Open Source Relational Database " && 
+# Install the repository RPM:
+sudo yum install -y https://download.postgresql.org/pub/repos/yum/reporpms/EL-7-x86_64/pgdg-redhat-repo-latest.noarch.rpm
+# Install PostgreSQL:
+sudo yum install -y postgresql13-server
+# Optionally initialize the database and enable automatic start:
+sudo /usr/pgsql-13/bin/postgresql-13-setup initdb
+sudo systemctl enable postgresql-13
+sudo systemctl start postgresql-13
 echo "------------------------------------------------------------------------------------------------------------------------------------------------------------------" && 
 
 
@@ -495,7 +507,7 @@ systemctl enable heartbeat-elastic
 ############################ Elasticsearch & Logstash & Kibana ############################################
 
 
-############################ Zabbix 监控系统   ############################################
+############################  Zabbix 监控系统   ############################################
 
 
 ############################ ---------------- ############################################
@@ -533,7 +545,6 @@ rabbitmq-plugins enable rabbitmq_management
 rabbitmq-server -detached
 # stop server
 rabbitmqctl stop
-
 
 # 用户管理：
 # 添加用户： rabbitmqctl add_user username password
