@@ -301,6 +301,12 @@ yum makecache fast &&
 yum -y install docker-ce &&
 systemctl start docker && docker ps &&
 echo "安装Docker-ce完毕" &&
+vim /etc/docker/daemon.json
+{
+  "registry-mirrors": ["https://hr1upp6v.mirror.aliyuncs.com"]
+}
+sudo systemctl daemon-reload
+sudo systemctl restart docker
 echo "------------------------------------------------------------------------------------------------------------------------------------------------------------------" && 
 
 
@@ -312,7 +318,64 @@ yum install jenkins -y  &&
 yum install java-1.8.0-openjdk-devel -y  &&  # Java 8版本
 # yum install java-11-openjdk-devel -y  &&   # Java11版本
 systemctl daemon-reload &&  systemctl start jenkins && systemctl status jenkins && 
-echo "安装Jenkins完毕   http://<ip>:8080  " &&
+echo "安装Jenkins完毕   http://<ip>:8080  " &&  http://<ip>:8080/restart
+[ update ]
+http://mirrors.shu.edu.cn/jenkins/updates/current/update-center.json
+https://mirrors.tuna.tsinghua.edu.cn/jenkins/updates/update-center.json
+1. 全局安全配置-> 代理
+2. 添加slave节点
+3. 下载agent.jar > /usr/local/jenkins-slave/
+4. echo 68870fc3f0e1558c0ee684f7a4306275f2ccd7a7e3e708012c810e516d751d5f > s/usr/local/jenkins-slave/
+nohup  java -jar agent.jar -jnlpUrl http://192.168.32.128:8080/computer/slave/jenkins-agent.jnlp -secret @secret-file -workDir "/usr/local/jenkins-slave" & 
+5.构建Maven项目
+5.1 安装Maven:
+wget  https://mirror.bit.edu.cn/apache/maven/maven-3/3.6.3/binaries/apache-maven-3.6.3-bin.tar.gz
+tar xzvf apache-maven-3.6.3-bin.tar.gz
+vim /etc/profile
+export M2_HOME=/usr/local/apache-maven-3.6.3
+export PATH=$PATH:$M2_HOME/bin
+source /etc/profile/profile
+
+mvn --version
+
+5.2 Maven项目:  https://github.com/initcron/mvn-test.git
+5.3 mvn指令:
+[ mvn clean: 清除缓存 ]
+[ mvn install: 打包 ]
+[ mvn test: 单元测试 ]
+5.4 jenkins自动构建:
+
+5.5 提交代码自动触发构建
+安装插件: gitlab hook 
+配置gitlab仓库
+   
+6 jenkins-pipline
+安装插件: 关于pipline基础插件
+7 参数化构建
+
+8 远程构建
+8.1 参数化构建之不带参数
+curl -s -u assasin:19920308shibin -X POST "http://192.168.32.128:8080/job/diy-maven_TEST/buildWithParameters?token=testabc"
+8.2 参数化构建之带参数
+curl -s -u assasin:19920308shibin -X POST "http://192.168.32.128:8080/job/diy-maven_TEST/buildWithParameters?token=testabc" -d bildStatus=off
+8.3 非参数化构建
+curl -s -u assasin:19920308shibin -X POST "http://192.168.32.128:8080/job/diy-maven_TEST/build?token=testabc"
+8.4 获取构建结果
+curl -s -u assasin:19920308shibin -X POST "http://192.168.32.128:8080/job/diy-maven_TEST/lastBuild/api/json?token=testabc"
+curl -s -u assasin:19920308shibin -X POST "http://192.168.32.128:8080/job/diy-maven_TEST/lastBuild/api/json?token=testabc" | grep -Po '"result":".*?"'
+curl -s -u assasin:19920308shibin -X POST "http://192.168.32.128:8080/job/diy-maven_TEST/lastBuild/api/json?token=testabc" | grep -Po '"result":".*?"' | awk -F : '{print $2}'
+
+echo "------------------------------------------------------------------------------------------------------------------------------------------------------------------" && 
+
+gitlab 安装:
+wget https://mirrors.tuna.tsinghua.edu.cn/gitlab-ce/yum/el7/gitlab-ce-10.7.3-ce.0.el7.x86_64.rpm
+yum install gitlab-ce-10.7.3-ce.0.el7.x86_64.rpm -y
+gitlab-ctl reconfigure
+gitlab-ctl restart
+
+
+
+
 echo "------------------------------------------------------------------------------------------------------------------------------------------------------------------" && 
 
 
