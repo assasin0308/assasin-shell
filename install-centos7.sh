@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 echo echo "---------------------------- 使用root用户操作 -------------------------------" &&
 echo "安装常用的扩展库工具" &&
-yum install -y  git telnet java-11-openjdk composer docker-compose htop glibc-devel pstree cmake ncurses-devel  zlib-devel perl flex bison net-tools  yum-config-manager yum-utils subversion ntpdate m4 unixODBC  unixODBC-devel device-mapper-persistent-data lvm2 epel-release libxml2 libxml2-devel  openssl  openssl-devel  curl  curl-devel  libjpeg  libjpeg-devel  libpng  libpng-devel  freetype  freetype-devel  pcre  pcre-devel  libxslt  libxslt-devel  bzip2  bzip2-devel net-tools vim lrzsz tree screen lsof tcpdump nc mtr nmap libxml2 libxml2-dev libxslt-devel  gd-devel  GeoIP GeoIP-devel GeoIP-data g oniguruma oniguruma-develperftools libuuid-devel libblkid-devel libudev-devel fuse-devel libedit-devel libatomic_ops-devel gcc-c++ gcc+ gcc trousers-devel gettext gettext-devel gettext-common-devel openssl-devel libffi-devel bzip2  bzip2 bzip2-devel ImageMagick-devel libicu-devel sqlite-devel oniguruma oniguruma-devel
+yum install -y  git telnet java-11-openjdk composer htop glibc-devel pstree cmake ncurses-devel  zlib-devel perl flex bison net-tools  yum-config-manager yum-utils subversion ntpdate m4 unixODBC  unixODBC-devel device-mapper-persistent-data lvm2 epel-release libxml2 libxml2-devel  openssl  openssl-devel  curl  curl-devel  libjpeg  libjpeg-devel  libpng  libpng-devel  freetype  freetype-devel  pcre  pcre-devel  libxslt  libxslt-devel  bzip2  bzip2-devel net-tools vim lrzsz tree screen lsof tcpdump nc mtr nmap libxml2 libxml2-dev libxslt-devel  gd-devel  GeoIP GeoIP-devel GeoIP-data g oniguruma oniguruma-develperftools libuuid-devel libblkid-devel libudev-devel fuse-devel libedit-devel libatomic_ops-devel gcc-c++ gcc+ gcc trousers-devel gettext gettext-devel gettext-common-devel openssl-devel libffi-devel bzip2  bzip2 bzip2-devel ImageMagick-devel libicu-devel sqlite-devel oniguruma oniguruma-devel
 
 composer config -g repo.packagist composer https://mirrors.aliyun.com/composer/
 
@@ -299,8 +299,7 @@ echo "--------------------------------------------------------------------------
 
 echo "安装Docker-ce" && 
 yum-config-manager --add-repo https://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo && 
-yum makecache fast &&  yum -y install docker-ce &&
-systemctl start docker && docker ps &&
+yum makecache fast &&  yum -y install docker-ce docker-compose  && systemctl enable docker && systemctl  start docker && docker ps &&
 echo "安装Docker-ce完毕" &&
 vim /etc/docker/daemon.json
 {
