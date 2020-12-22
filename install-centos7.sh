@@ -1,7 +1,9 @@
 #!/usr/bin/bash
 echo echo "---------------------------- 使用root用户操作 -------------------------------" &&
 echo "安装常用的扩展库工具" &&
-yum install -y openssh-server git telnet java-11-openjdk wget htop glibc-devel pstree cmake ncurses-devel  zlib-devel perl flex bison net-tools  yum-config-manager yum-utils subversion ntpdate m4 unixODBC  unixODBC-devel device-mapper-persistent-data lvm2 epel-release libxml2 libxml2-devel  openssl  openssl-devel  curl  curl-devel  libjpeg  libjpeg-devel  libpng  libpng-devel  freetype  freetype-devel  pcre  pcre-devel  libxslt  libxslt-devel  bzip2  bzip2-devel net-tools vim lrzsz tree screen lsof tcpdump nc mtr nmap libxml2 libxml2-dev libxslt-devel  gd-devel  GeoIP GeoIP-devel GeoIP-data g oniguruma oniguruma-develperftools libuuid-devel libblkid-devel libudev-devel fuse-devel libedit-devel libatomic_ops-devel gcc-c++ gcc+ gcc trousers-devel gettext gettext-devel gettext-common-devel openssl-devel libffi-devel bzip2  bzip2 bzip2-devel ImageMagick-devel libicu-devel sqlite-devel oniguruma oniguruma-devel
+yum install -y  git telnet java-11-openjdk composer docker-compose htop glibc-devel pstree cmake ncurses-devel  zlib-devel perl flex bison net-tools  yum-config-manager yum-utils subversion ntpdate m4 unixODBC  unixODBC-devel device-mapper-persistent-data lvm2 epel-release libxml2 libxml2-devel  openssl  openssl-devel  curl  curl-devel  libjpeg  libjpeg-devel  libpng  libpng-devel  freetype  freetype-devel  pcre  pcre-devel  libxslt  libxslt-devel  bzip2  bzip2-devel net-tools vim lrzsz tree screen lsof tcpdump nc mtr nmap libxml2 libxml2-dev libxslt-devel  gd-devel  GeoIP GeoIP-devel GeoIP-data g oniguruma oniguruma-develperftools libuuid-devel libblkid-devel libudev-devel fuse-devel libedit-devel libatomic_ops-devel gcc-c++ gcc+ gcc trousers-devel gettext gettext-devel gettext-common-devel openssl-devel libffi-devel bzip2  bzip2 bzip2-devel ImageMagick-devel libicu-devel sqlite-devel oniguruma oniguruma-devel
+
+composer config -g repo.packagist composer https://mirrors.aliyun.com/composer/
 
 echo "安装完毕" &&
 echo "------------------------------------------------------------------------------------------------------------------------------------------------------------------" && 
@@ -297,24 +299,21 @@ echo "--------------------------------------------------------------------------
 
 echo "安装Docker-ce" && 
 yum-config-manager --add-repo https://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo && 
-yum makecache fast && 
-yum -y install docker-ce &&
+yum makecache fast &&  yum -y install docker-ce &&
 systemctl start docker && docker ps &&
 echo "安装Docker-ce完毕" &&
 vim /etc/docker/daemon.json
 {
   "registry-mirrors": ["https://hr1upp6v.mirror.aliyuncs.com"]
 }
-sudo systemctl daemon-reload
-sudo systemctl restart docker
+sudo systemctl daemon-reload && systemctl restart docker
 echo "------------------------------------------------------------------------------------------------------------------------------------------------------------------" && 
 
 
 echo "安装Jenkins " && 
 wget -O /etc/yum.repos.d/jenkins.repo https://pkg.jenkins.io/redhat-stable/jenkins.repo && 
 rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io.key && 
-yum upgrade -y && 
-yum install jenkins -y  &&
+yum upgrade -y &&  yum install jenkins -y  &&
 yum install java-1.8.0-openjdk-devel -y  &&  # Java 8版本
 # yum install java-11-openjdk-devel -y  &&   # Java11版本
 systemctl daemon-reload &&  systemctl start jenkins && systemctl status jenkins && 
@@ -367,17 +366,47 @@ curl -s -u assasin:19920308shibin -X POST "http://192.168.32.128:8080/job/diy-ma
 
 echo "------------------------------------------------------------------------------------------------------------------------------------------------------------------" && 
 
-gitlab 安装:
-wget https://mirrors.tuna.tsinghua.edu.cn/gitlab-ce/yum/el7/gitlab-ce-10.7.3-ce.0.el7.x86_64.rpm
-yum install gitlab-ce-10.7.3-ce.0.el7.x86_64.rpm -y
+# gitlab 安装:
+wget https://mirrors.tuna.tsinghua.edu.cn/gitlab-ce/yum/el7/gitlab-ce-10.7.3-ce.0.el7.x86_64.rpm &&  yum install gitlab-ce-10.7.3-ce.0.el7.x86_64.rpm -y &&
 gitlab-ctl reconfigure
 gitlab-ctl restart
+echo "------------------------------------------------------------------------------------------------------------------------------------------------------------------" && 
 
 
+# SonarQube6.7 安装:
+wget https://binaries.sonarsource.com/Distribution/sonarqube/sonarqube-6.7.7.zip && 
+wget https://repo1.maven.org/maven2/org/codehaus/sonar/runner/sonar-runner-dist/2.4/sonar-runner-dist-2.4.zip && 
+vim  /usr/local/sonar-runner-2.4/conf/sonar-runner.properties
+cat <<EOF  > /usr/local/sonar-runner-2.4/conf/sonar-runner.properties
+#----- Default SonarQube server
+sonar.host.url=http://<ip>:9000
+
+#----- PostgreSQL
+#sonar.jdbc.url=jdbc:postgresql://localhost/sonar
+
+#----- MySQL
+sonar.jdbc.url=jdbc:mysql://localhost:3306/sonar?useUnicode=true&amp;characterEncoding=utf8
+
+#----- Oracle
+#sonar.jdbc.url=jdbc:oracle:thin:@localhost/XE
+
+#----- Microsoft SQLServer
+#sonar.jdbc.url=jdbc:jtds:sqlserver://localhost/sonar;SelectMethod=Cursor
+
+#----- Global database settings
+sonar.jdbc.username=sonar
+sonar.jdbc.password=sonar
+
+#----- Default source code encoding
+#sonar.sourceEncoding=UTF-8
+
+#----- Security (when 'sonar.forceAuthentication' is set to 'true')
+sonar.login=admin
+sonar.password=admin
+EOF
 
 
 echo "------------------------------------------------------------------------------------------------------------------------------------------------------------------" && 
-
 
 
 echo "安装Kubernetes" && 
@@ -391,8 +420,7 @@ repo_gpgcheck=1
 gpgkey=https://mirrors.aliyun.com/kubernetes/yum/doc/yum-key.gpg https://mirrors.aliyun.com/kubernetes/yum/doc/rpm-package-key.gpg
 EOF
 setenforce 0 && 
-yum install -y kubelet kubeadm kubectl && 
-systemctl enable kubelet && systemctl start kubelet && 
+yum install -y kubelet kubeadm kubectl && systemctl enable kubelet && systemctl start kubelet && 
 echo "安装Kubernetes完毕" &&
 echo "------------------------------------------------------------------------------------------------------------------------------------------------------------------" && 
 
