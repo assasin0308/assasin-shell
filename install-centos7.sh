@@ -500,11 +500,15 @@ wget http://download.redis.io/releases/redis-5.0.9.tar.gz && tar -xvf redis-5.0.
 #echo "启动Redis..........." &&
 #/usr/local/redis-5.0.9/src/redis-server ./redis.conf
 echo "Redis 安装完毕" &&
+docker run -itd --privileged=true -p 6380:6379 --restart always -v /usr/local/redis-5.0.9/redis.conf:/etc/redis/redis.conf -v /usr/local/redis-5.0.9/data:/data --name docker-redis redis:6.0 redis-server /etc/redis/redis.conf --requirepass '123456' --bind 0.0.0.0 --daemonize no --protected-mode yes --appendonly no
 echo "------------------------------------------------------------------------------------------------------------------------------------------------------------------" && 
 
 
 ############################ Elasticsearch & Logstash & Kibana & Filebeats ############################################
 # elasticsearch
+docker pull elasticsearch
+docker run -itd --name elasticsearch -v /elasticsearch/data:/usr/share/elasticsearch/data -v /elasticsearch/conf:/etc/elasticsearch -p 9200:9200 elasticsearch 
+# ----------------
 rpm --import https://artifacts.elastic.co/GPG-KEY-elasticsearch && 
 cat <<EOF >/etc/yum.repos.d/elasticsearch.repo
 [elasticsearch]
@@ -546,25 +550,25 @@ systemctl status logstash &&
 systemctl restart logstash 
 
 # /etc/logstash.conf
-#  input {
-#     file {
-#       path => "/apps/tomcat/logs/tomcat_access_log.*.log"
-#       type => "tomcat-access-log-101"
-#       start_position => "beginning"
-#       stat_interval => "2"
-#       codec => "json"
-#    }
-# }
+ input {
+    file {
+      path => "/apps/tomcat/logs/tomcat_access_log.*.log"
+      type => "tomcat-access-log-101"
+      start_position => "beginning"
+      stat_interval => "2"
+      codec => "json"
+   }
+}
 
-# output {
-#     elasticsearch {
-#        hosts => ["192.168.2.101:9200"]
-#        index => "logstash-tomcat-access-log-101-%{++YYYY.MM.dd}"
-#     }
-#     file {
-#         path => "/tmp/tomcat.txt"
-#     }
-# }
+output {
+    elasticsearch {
+       hosts => ["192.168.2.101:9200"]
+       index => "logstash-tomcat-access-log-101-%{++YYYY.MM.dd}"
+    }
+    file {
+        path => "/tmp/tomcat.txt"
+    }
+}
 
 
 # test logstash.conf
@@ -574,6 +578,9 @@ systemctl restart logstash
 
 
 # kibana
+docker pull kibana
+docker run -itd --name kibana --link elasticsearch:elasticsearch -p 5601:5601 kibana
+# ---------------------
 rpm --import https://artifacts.elastic.co/GPG-KEY-elasticsearch && 
 cat <<EOF >/etc/yum.repos.d/kibana.repo
 [kibana-7.x]
@@ -600,6 +607,21 @@ systemctl enable heartbeat-elastic
 
 
 ############################  Zabbix 监控系统   ############################################
+docker pull zabbix/zabbix-java-gateway
+
+docker pull zabbix/zabbix-server-mysql
+
+docker pull zabbix/zabbix-web-nginx-mysql
+
+docker pull mysql:5.7
+
+docker run --name zabbix-java-gateway -t -d zabbix/zabbix-java-gateway:latest
+
+docker run --name mysql-server -itd -p 3307:3306 -e MYSQL_DATABASE="zabbix" -e MYSQL_USER="zabbix" -e MYSQL_PASSWORD="zabbix" -e MYSQL_ROOT_PASSWORD="zabbix"  mysql:5.7 --character-set-server=utf8 --collation-server=utf8_bin
+
+docker run --name zabbix-server-mysql -itd -e DB_SERVER_HOST="192.168.80.157" -e DB_SERVER_PORT=3307 -e MYSQL_DATABASE="zabbix" -e MYSQL_USER="zabbix" -e MYSQL_PASSWORD="zabbix" -e MYSQL_ROOT_PASSWORD="zabbix" -e ZBX_JAVAGATEWAY="zabbix-java-gateway" --link mysql-server:mysql --link zabbix-java-gateway:zabbix-java-gateway -p 10051:10051  zabbix/zabbix-server-mysql:latest
+
+docker run --name zabbix-web-nginx-mysql -t -e PHP_TZ="Asia/Shanghai" -e DB_SERVER_HOST="192.168.80.157" -e DB_SERVER_PORT=3307 -e MYSQL_DATABASE="zabbix" -e MYSQL_USER="zabbix" -e MYSQL_PASSWORD="zabbix" -e MYSQL_ROOT_PASSWORD="zabbix" --link mysql-server:mysql --link zabbix-server-mysql:zabbix-server -p 8080:8080 -d zabbix/zabbix-web-nginx-mysql:latest
 
 
 ############################ ---------------- ############################################
